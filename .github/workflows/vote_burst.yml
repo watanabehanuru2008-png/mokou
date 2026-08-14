@@ -1,5 +1,5 @@
 name: vote-burst-a
-on:
+"on":
   workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
