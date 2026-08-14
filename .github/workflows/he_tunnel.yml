@@ -1,0 +1,29 @@
+name: he-tunnel-setup
+on:
+  workflow_dispatch:
+
+jobs:
+  he:
+    runs-on: ubuntu-latest
+    env:
+      HE_CLIENT_IP: "126.143.144.121"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q curl_cffi ddddocr
+      - name: run-he-reg
+        id: he
+        run: python he_ga.py
+      - name: upload-values
+        uses: actions/upload-artifact@v4
+        with:
+          name: he_tunnel_values
+          path: he_tunnel_values.txt
+      - name: show
+        run: |
+          echo "== tunnel values =="
+          cat he_tunnel_values.txt
+          echo "== result =="
+          echo "${{ steps.he.outputs.result }}"
