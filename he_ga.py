@@ -21,7 +21,7 @@ def s1(action, **params):
     errs = []
     for base in S1_API:
         try:
-            r = cr.get(base + q, impersonate="chrome", timeout=20)
+            r = cr.get(base + q, impersonate="chrome", timeout=20, verify=False)
             if r.status_code == 200:
                 return r.json()
             errs.append("%s:%d" % (base.replace("https://", "").replace("http://", ""), r.status_code))
