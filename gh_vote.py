@@ -4,7 +4,7 @@
 各ランナーは固有のエグレスIP。1ジョブ=1票。結果はJSONで出力し、
 ワークフローが集計。curl_cffi でTLSフィンガープリント偽装。
 """
-import hashlib, io, json, os, random, re, sys, urllib.parse
+import hashlib, io, json, os, random, re, sys, time, urllib.parse
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace', line_buffering=True)
 from curl_cffi import requests as cr
@@ -15,6 +15,14 @@ POST_URL = BASE + "/people/result/oe (ボカロP)"
 PID = "102032"
 UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
 IMPS = ["safari180_ios", "safari170", "chrome136", "firefox135"]
+
+
+def public_ip():
+    try:
+        r = cr.get("https://api.ipify.org", timeout=15, impersonate="chrome")
+        return r.text.strip()
+    except Exception:
+        return "?"
 
 
 def get_retry(s, url):
@@ -29,7 +37,9 @@ def get_retry(s, url):
 
 
 def main():
-    result = {"status": "unknown"}
+    time.sleep(random.uniform(0.5, 8.0))
+    ip = public_ip()
+    result = {"status": "unknown", "ip": ip}
     with cr.Session(impersonate="safari180_ios") as s:
         r = get_retry(s, VOTE_URL)
         if r is None:
