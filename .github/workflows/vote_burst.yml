@@ -20,6 +20,7 @@ jobs:
       - name: vote
         id: vote
         run: |
+          echo "IP=$(curl -s --max-time 15 https://api.ipify.org)"
           OUT=$(python gh_vote.py | tail -1)
           echo "RESULT=$OUT" >> "$GITHUB_OUTPUT"
       - name: summary
