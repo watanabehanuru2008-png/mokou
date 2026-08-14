@@ -9,18 +9,25 @@ from curl_cffi import requests as cr
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
 CLIENT_IP = os.environ.get("HE_CLIENT_IP", "")
-S1_API = ["https://www.1secmail.com/api/v1", "https://www.1secmail.org/api/v1", "https://www.1secmail.net/api/v1"]
+S1_API = ["https://www.1secmail.com/api/v1", "https://www.1secmail.org/api/v1",
+          "https://www.1secmail.net/api/v1", "https://api.1secmail.com/api/v1",
+          "https://api.1secmail.org/api/v1", "https://api.1secmail.net/api/v1",
+          "https://1secmail.com/api/v1", "https://1secmail.org/api/v1",
+          "https://1secmail.net/api/v1", "http://www.1secmail.com/api/v1"]
 
 
 def s1(action, **params):
     q = "?action=" + action + "&" + "&".join("%s=%s" % (k, urllib_quote(str(v))) for k, v in params.items())
+    errs = []
     for base in S1_API:
         try:
             r = cr.get(base + q, impersonate="chrome", timeout=20)
             if r.status_code == 200:
                 return r.json()
-        except Exception:
-            pass
+            errs.append("%s:%d" % (base.replace("https://", "").replace("http://", ""), r.status_code))
+        except Exception as e:
+            errs.append("%s:%s" % (base.replace("https://", "").replace("http://", ""), repr(e)[:40]))
+    print("s1 all failed:", "; ".join(errs[:6]), flush=True)
     return None
 
 
