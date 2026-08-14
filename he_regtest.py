@@ -26,7 +26,8 @@ def main():
     st, html = http("GET", "https://tunnelbroker.net/register.php", opener)
     img_m = re.search(r'<img src="data:image/png;base64,([^"]+)"', html)
     if not img_m:
-        print("NO CAPTCHA IMG, status=%d" % st)
+        import json
+        print("NO CAPTCHA IMG, status=%d, len=%d, head=%s" % (st, len(html), json.dumps(html[:1200])))
         return
     import ddddocr
     cap = ddddocr.DdddOcr(show_ad=False).classification(base64.b64decode(img_m.group(1)))
