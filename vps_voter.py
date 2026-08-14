@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""vps_voter.py: IPv6繧ｽ繝ｼ繧ｹ蝗櫁ｻ｢謚慕･ｨ蝎ｨ (HAX /112 繧ｵ繝悶ロ繝・ヨ逕ｨ)
+"""vps_voter.py: IPv6ソース回転投票器 (HAX /112 サブネット用)
 
-HAX VPS 荳翫〒螳溯｡後ょ牡繧雁ｽ薙※繧峨ｌ縺・/112 (65,536繧｢繝峨Ξ繧ｹ) 縺九ｉ
-1逾ｨ=1繧｢繝峨Ξ繧ｹ縺ｧ謚慕･ｨ繧貞屓縺吶ゅし繧､繝医・驥崎､・賜髯､縺栗P蜊倅ｽ阪°/64蜊倅ｽ阪°繧・縺ｾ縺・test 繝｢繝ｼ繝峨〒蛻､螳壹＠縲＾K縺ｪ繧・run 繝｢繝ｼ繝峨〒10逾ｨ/遘偵ｒ逶ｮ謖・☆縲・
-菴ｿ逕ｨ豕・
-  python3 vps_voter.py test                 # 蜷御ｸ/64蜀・繧｢繝峨Ξ繧ｹ縺ｧ驥崎､・賜髯､蛻､螳・  python3 vps_voter.py run --rate 10        # 蜈ｨ/112繧貞屓霆｢縺励※謚慕･ｨ
+HAX VPS 上で実行。割り当てられた /112 (65,536アドレス) から
+1票=1アドレスで投票を回す。サイトの重複排除がIP単位か/64単位かを
+まず test モードで判定し、OKなら run モードで10票/秒を目指す。
+
+使用法:
+  python3 vps_voter.py test                 # 同一/64内2アドレスで重複排除判定
+  python3 vps_voter.py run --rate 10        # 全/112を回転して投票
   python3 vps_voter.py run --rate 10 --limit 1000
 """
 import argparse
@@ -24,11 +27,11 @@ from curl_cffi import Curl, CurlOpt
 
 BASE = "https://suki-kira.com"
 VOTE_URL = BASE + "/people/vote/oe%20(%E3%83%9C%E3%82%AB%E3%83%ADP)"
-POST_URL = BASE + "/people/result/oe (繝懊き繝ｭP)"
+POST_URL = BASE + "/people/result/oe (ボカロP)"
 PID = "102032"
 IMPS = ["safari180_ios", "safari170", "chrome136", "firefox135"]
 AUTH_RE = re.compile(r'name="auth1"[^>]*value="([^"]*)"')
-COUNT_RE = re.compile(r"雖後＞豢ｾ[:\s]*([\d.]+)%\s*\((\d+)逾ｨ\)")
+COUNT_RE = re.compile(r"嫌い派[:\s]*([\d.]+)%\s*\((\d+)票\)")
 
 
 class RateLimiter:
@@ -214,13 +217,13 @@ def self_test(prefix):
     after = current_count()
     print(json.dumps({"event": "counter_after", "votes": after}, ensure_ascii=False))
     if before is None or after is None:
-        print(json.dumps({"event": "verdict", "dedup": "unknown", "note": "繧ｫ繧ｦ繝ｳ繧ｿ繝ｼ蜿門ｾ怜､ｱ謨励∬ｦ∬ｪｿ譟ｻ"}, ensure_ascii=False))
+        print(json.dumps({"event": "verdict", "dedup": "unknown", "note": "カウンター取得失敗、要調査"}, ensure_ascii=False))
     elif after - before >= 2:
-        print(json.dumps({"event": "verdict", "dedup": "per_ip", "note": "蜷御ｸ/64蜀・〒隍・焚逾ｨ蜿ｯ 竊・HAX繝輔Ν豢ｻ逕ｨ蜿ｯ"}, ensure_ascii=False))
+        print(json.dumps({"event": "verdict", "dedup": "per_ip", "note": "同一/64内で複数票可 → HAXフル活用可"}, ensure_ascii=False))
     elif after - before == 1:
-        print(json.dumps({"event": "verdict", "dedup": "per_64", "note": "/64蜊倅ｽ阪〒驥崎､・賜髯､ 竊・HAX縺ｯ1逾ｨ縺ｮ縺ｿ縲仝ebHorizon /48 縺悟ｿ・ｦ・}, ensure_ascii=False))
+        print(json.dumps({"event": "verdict", "dedup": "per_64", "note": "/64単位で重複排除 → HAXは1票のみ、WebHorizon /48 が必要"}, ensure_ascii=False))
     else:
-        print(json.dumps({"event": "verdict", "dedup": "unknown", "note": "繧ｫ繧ｦ繝ｳ繧ｿ繝ｼ縺悟虚縺・※縺・↑縺・∬ｦ∬ｪｿ譟ｻ"}, ensure_ascii=False))
+        print(json.dumps({"event": "verdict", "dedup": "unknown", "note": "カウンターが動いていない、要調査"}, ensure_ascii=False))
 
 
 def main():
