@@ -213,7 +213,9 @@ def self_test(prefix):
     time.sleep(2)
     after = current_count()
     print(json.dumps({"event": "counter_after", "votes": after}, ensure_ascii=False))
-    if after - before >= 2:
+    if before is None or after is None:
+        print(json.dumps({"event": "verdict", "dedup": "unknown", "note": "繧ｫ繧ｦ繝ｳ繧ｿ繝ｼ蜿門ｾ怜､ｱ謨励∬ｦ∬ｪｿ譟ｻ"}, ensure_ascii=False))
+    elif after - before >= 2:
         print(json.dumps({"event": "verdict", "dedup": "per_ip", "note": "蜷御ｸ/64蜀・〒隍・焚逾ｨ蜿ｯ 竊・HAX繝輔Ν豢ｻ逕ｨ蜿ｯ"}, ensure_ascii=False))
     elif after - before == 1:
         print(json.dumps({"event": "verdict", "dedup": "per_64", "note": "/64蜊倅ｽ阪〒驥崎､・賜髯､ 竊・HAX縺ｯ1逾ｨ縺ｮ縺ｿ縲仝ebHorizon /48 縺悟ｿ・ｦ・}, ensure_ascii=False))
