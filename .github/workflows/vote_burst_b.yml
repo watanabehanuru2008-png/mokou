@@ -23,4 +23,4 @@ jobs:
           OUT=$(python gh_vote.py | tail -1)
           echo "RESULT=$OUT" >> "$GITHUB_OUTPUT"
       - name: summary
-        run: echo "job ${{ matrix.id }}: ${{ steps.vote.outputs.RESULT }}"
+        run: echo "job ${{ matrix.id }} -> ${{ steps.vote.outputs.RESULT }}"
