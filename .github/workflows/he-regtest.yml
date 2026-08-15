@@ -9,9 +9,13 @@ jobs:
     strategy:
       matrix:
         email:
-          - skrvote1@yahoo.co.jp
-          - skrvote1@mailinator3.com
-          - skrvote1@emailondeck.com
+          - skrvotesx1@firemail.de
+          - skrvotesx1@emailondeck.com
+          - skrvotesx1@hotmailbox.me
+          - skrvotesx1@mailto.cc
+          - skrvotesx1@maildax.com
+          - skrvotesx1@getmail.ca
+          - skrvotesx1@mail4all.org
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
